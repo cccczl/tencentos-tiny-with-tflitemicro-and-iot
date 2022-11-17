@@ -3,6 +3,7 @@ Generates a chechker file for lv_conf.h from lv_conf_templ.h define all the not 
 '''
 
 
+
 import re
 
 fin = open("../lv_conf_template.h", "r");
@@ -26,28 +27,25 @@ inlines = fin.read().splitlines();
 started = 0
 
 for i in inlines:
-  if(not started):
-    if('#define LV_CONF_H' in i):
-      started = 1 
-      continue
-    else:
-      continue
-    
+  if (not started):
+    if ('#define LV_CONF_H' in i):
+      started = 1
+    continue
   if('/*--END OF LV_CONF_H--*/' in i): break  
-    
-  if(re.search('^ *# *define .*$', i)): 
-    new = re.sub('^ *# *define', '#define ', i)       
+
+  if (re.search('^ *# *define .*$', i)): 
+    new = re.sub('^ *# *define', '#define ', i)
     new = re.sub(' +', ' ', new)                 #Remove extra white spaces
     splitted = new.split(' ')
-    fout.write('#ifndef ' + splitted[1] + '\n')
-    fout.write(i + '\n') 
+    fout.write(f'#ifndef {splitted[1]}' + '\n')
+    fout.write(i + '\n')
     fout.write('#endif\n')
   elif(re.search('^ *typedef .*;.*$', i)):
     continue;   #igonre typedefs to avoide redeclaration
   else:
     fout.write(i + '\n')  
-    
-    
+
+
 fout.write(
 '\n\
 #endif  /*LV_CONF_CHECKER_H*/\n\

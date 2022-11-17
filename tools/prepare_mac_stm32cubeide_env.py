@@ -66,7 +66,7 @@ def MakeOptions(subprefix) :
 
     return s
 
-def main() :
+def main():
     if len(sys.argv) != 3 :
         Usage()
         return
@@ -74,12 +74,10 @@ def main() :
     cprj     = sys.argv[1]
     new_cprj = sys.argv[2]
 
-    fd = open(cprj)
-    lines = fd.readlines()
-    fd.close()
-
+    with open(cprj) as fd:
+        lines = fd.readlines()
     outlines = []
-    for line in lines :
+    for line in lines:
         tabcnt = line.count('\t')
         prefix = '\t'*tabcnt
         subprefix = '\t'*(tabcnt+1)
@@ -90,15 +88,31 @@ def main() :
         if 'MQTT_COMM_ENABLED' in line or 'MBEDTLS_CONFIG_FILE' in line :
             continue
 
-        if "</sourceEntries>" in line :
-            outlines.append(subprefix+'<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="tiny"/>'+'\n')
-            outlines.append(line)
+        if "</sourceEntries>" in line:
+            outlines.extend(
+                (
+                    subprefix
+                    + '<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="tiny"/>'
+                    + '\n',
+                    line,
+                )
+            )
+
             continue
 
-        if '"definedSymbols">' in line :
-            outlines.append(line)
-            outlines.append(subprefix+'<listOptionValue builtIn="false" value="MQTT_COMM_ENABLED=1"/>'+'\n')
-            outlines.append(subprefix+'<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&lt;iothub_tls_config.h&gt;"/>'+'\n')
+        if '"definedSymbols">' in line:
+            outlines.extend(
+                (
+                    line,
+                    subprefix
+                    + '<listOptionValue builtIn="false" value="MQTT_COMM_ENABLED=1"/>'
+                    + '\n',
+                    subprefix
+                    + '<listOptionValue builtIn="false" value="MBEDTLS_CONFIG_FILE=&lt;iothub_tls_config.h&gt;"/>'
+                    + '\n',
+                )
+            )
+
             continue
 
 
@@ -106,20 +120,22 @@ def main() :
             outlines.append(line)
             continue
 
-        if '"includePath">' in line :
-            outlines.append(line)
-            outlines.append(MakeOptions(subprefix))
-        else :
-            outlines.append(line.replace('"includePath"/>', '"includePath">').replace('IS_VALUE_EMPTY="true"', 'IS_VALUE_EMPTY="false"'))
-            outlines.append(MakeOptions(subprefix))
-            outlines.append(prefix + '</option>\n')
+        if '"includePath">' in line:
+            outlines.extend((line, MakeOptions(subprefix)))
+        else:
+            outlines.extend(
+                (
+                    line.replace('"includePath"/>', '"includePath">').replace(
+                        'IS_VALUE_EMPTY="true"', 'IS_VALUE_EMPTY="false"'
+                    ),
+                    MakeOptions(subprefix),
+                    prefix + '</option>\n',
+                )
+            )
 
-            
-
-    fd = open(new_cprj, "w+")
-    for line in outlines :
-        fd.write(line)
-    fd.close()
+    with open(new_cprj, "w+") as fd:
+        for line in outlines :
+            fd.write(line)
 
 
 
