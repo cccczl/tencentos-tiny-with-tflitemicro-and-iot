@@ -23,10 +23,10 @@ def copydirs(from_file, to_file):
         os.makedirs(to_file)
     files = os.listdir(from_file)  # 获取文件夹中文件和目录列表
     for f in files:
-        if os.path.isdir(from_file + '/' + f):  # 判断是否是文件夹
-            copydirs(from_file + '/' + f, to_file + '/' + f)  # 递归调用本函数
+        if os.path.isdir(f'{from_file}/{f}'):  # 判断是否是文件夹
+            copydirs(f'{from_file}/{f}', f'{to_file}/{f}')
         else:
-            shutil.copy(from_file + '/' + f, to_file + '/' + f)  # 拷贝文件
+            shutil.copy(f'{from_file}/{f}', f'{to_file}/{f}')
 
 copydirs(os.path.join(tflite_micro_hello_path, 'tensorflow'), os.path.join(tflu_lib_path, "tensorflow"))
 copydirs(os.path.join(tflite_micro_hello_path, 'third_party'), os.path.join(tflu_lib_path, "third_party"))

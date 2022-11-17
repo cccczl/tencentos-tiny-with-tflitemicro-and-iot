@@ -27,7 +27,7 @@ if pub == "":
 
 client_id = product_id + dev_name
 # expire time: 2^32 - 1 = 4294967295
-username = client_id+";21010406;12365;{}".format(4294967295)
+username = f"{client_id};21010406;12365;4294967295"
 
 def hmacsha1(content, passwd):
         passwd_byte = base64.b64decode(passwd)
